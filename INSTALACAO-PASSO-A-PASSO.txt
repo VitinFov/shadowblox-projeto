@@ -1,0 +1,22 @@
+SHADOWBLOX — COMO ATUALIZAR NO REPLIT
+
+1. Faça um backup do projeto atual no Replit.
+2. Envie os arquivos desta pasta para o mesmo projeto.
+3. Não apague os Secrets SUPABASE_URL e SUPABASE_PUBLISHABLE_KEY.
+4. Abra o Supabase.
+5. Entre no SQL Editor.
+6. Crie uma nova query.
+7. Abra o arquivo supabase/migration_v2.sql.
+8. Copie todo o conteúdo e cole no SQL Editor.
+9. Clique em Run.
+10. Confirme que apareceu Success.
+11. Volte ao Replit.
+12. Abra o Shell e execute: npm install
+13. Clique em Run.
+14. Teste o catálogo e o login.
+15. Entre no site com sua conta.
+16. No Supabase, confira profiles.role = owner para nova61899@gmail.com.
+17. No Replit, clique em Republish.
+
+NÃO ENVIE CHAVES SECRETAS PELO CHAT.
+NÃO COLOQUE service_role OU SUPABASE_SECRET_KEY NO CÓDIGO.

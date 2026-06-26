@@ -1,0 +1,188 @@
+SHADOWBLOX — STATUS DO PROJETO E PENDÊNCIAS
+Documento para entrega ao programador
+
+IMPORTANTE
+Este pacote não contém SUPABASE_SECRET_KEY, service_role, Client Secrets do Google/Discord nem token do Mercado Pago. Essas credenciais devem continuar somente nos painéis protegidos e nas variáveis de ambiente.
+
+============================================================
+1. O QUE JÁ ESTÁ IMPLEMENTADO NO CÓDIGO
+============================================================
+
+INTERFACE E NAVEGAÇÃO
+- Página inicial responsiva em HTML, CSS e JavaScript.
+- Seção visual repetida “Explore Categorias” removida.
+- Banner principal mantido sem o botão repetido “Ver ofertas”.
+- Banner Sailor Piece mantido como entrada principal do catálogo.
+- Catálogo interno com menu lateral expansível.
+- Subcategorias em texto, sem imagens próprias.
+- Clique em cada subcategoria filtra os produtos correspondentes.
+- Busca, ordenação, carrinho e cards com imagens/preços.
+- Produtos podem aparecer disponíveis, fora de estoque ou ocultos.
+
+CATÁLOGO E PRODUTOS
+- Produtos e imagens incluídos no projeto.
+- Categorias: Novo, Combos, Contas, Gamepass, Sets, Upgrades, Relíquias, Rerolls e Caixas.
+- Campos de preço atual, preço antigo, estoque, destaque, visibilidade e status.
+- Fora de estoque: produto continua visível e não pode ser comprado.
+- Oculto: produto deixa de aparecer para clientes.
+
+AUTENTICAÇÃO E PERFIL
+- Integração com Supabase Auth.
+- Login por Google e Discord preparado.
+- Sessão persistente.
+- Leitura do perfil na tabela profiles.
+- Identificação de cargo do usuário.
+- PIN administrativo antigo removido.
+- Usuário falso e modo demonstração removidos.
+
+CARGOS E PAINÉIS
+- Cargos previstos: owner, admin, delivery_staff e customer.
+- Painel de owner/admin para produtos, preços e estoque.
+- Área de equipe e permissões para o owner.
+- Alteração de cargos e bloqueio de usuários por funções do Supabase.
+- Painel “Atendimento e entregas” para equipe autorizada.
+- Fluxo para funcionário assumir atendimento e marcar pedido como entregue.
+
+PEDIDOS E PIX
+- Carrinho e criação de pedido no Supabase.
+- Pix estático com QR Code e código copia e cola.
+- Upload de comprovante para bucket privado receipts.
+- Pedido enviado para análise manual.
+- Aprovação ou recusa manual pelo painel administrativo.
+- Histórico de pedidos do cliente.
+
+CHAT DE ENTREGA
+- Chat por pedido.
+- Chat liberado para pedidos aprovados/em atendimento/entregues.
+- Mensagens armazenadas no Supabase.
+- Supabase Realtime preparado para atualizar mensagens.
+- Acesso controlado por usuário/cargo através das políticas SQL.
+
+AVALIAÇÕES
+- Avaliações públicas com estrelas e comentários.
+- Compra verificada vinculada a pedido entregue.
+- Uma avaliação por pedido.
+- Média, total e distribuição de notas.
+- Resposta pública da loja.
+- Moderação de avaliações pelo owner/admin.
+
+SUPABASE
+- Arquivos supabase/schema.sql e supabase/migration_v2.sql incluídos.
+- Estrutura de tabelas, funções RPC e políticas RLS incluída.
+- Buckets product-images e receipts previstos.
+- Migration atual tenta definir nova61899@gmail.com como owner.
+  O programador deve confirmar se esse é o e-mail correto do proprietário antes de produção.
+
+REPLIT / SERVIDOR
+- Servidor Express em server.js.
+- Porta process.env.PORT || 5000.
+- Escuta em 0.0.0.0.
+- Configuração .replit para Autoscale.
+- Scripts npm start e npm run check.
+
+============================================================
+2. O QUE AINDA PRECISA SER FEITO / VALIDADO
+============================================================
+
+OBRIGATÓRIO ANTES DE RECEBER CLIENTES
+- Executar supabase/migration_v2.sql no projeto Supabase correto.
+- Confirmar que a migration terminou com Success e sem conflitos.
+- Confirmar que SUPABASE_URL e SUPABASE_PUBLISHABLE_KEY estão nas Secrets do Replit.
+- Confirmar que nenhuma chave secreta está no código ou GitHub.
+- Confirmar o e-mail correto que deve ficar com role = owner.
+- Republicar o projeto no Replit após substituir os arquivos.
+- Testar Google e Discord no domínio final .replit.app.
+- Testar logout e persistência de sessão.
+- Testar com pelo menos quatro contas separadas: owner, admin, delivery_staff e customer.
+- Testar as políticas RLS tentando acessar pedido/chat de outro usuário.
+- Revisar todos os produtos, imagens, nomes, categorias e preços.
+- Validar o Pix e o upload real de comprovante.
+- Validar aprovação, recusa, chat, entrega e avaliação ponta a ponta.
+
+PAGAMENTO POR CARTÃO
+- NÃO está ativo.
+- O botão apenas informa que o Mercado Pago será configurado depois.
+- Falta integrar Mercado Pago em sandbox e depois produção.
+- Falta criar pagamento no backend.
+- Falta webhook com validação de assinatura.
+- Falta confirmação automática de pagamento.
+- Nunca armazenar dados completos do cartão.
+
+SEGURANÇA / REVISÃO TÉCNICA
+- Revisar todas as funções RPC e políticas RLS com um programador experiente.
+- Garantir que alteração de preço, estoque, cargo e status não dependa apenas do frontend.
+- Testar bloqueio de usuário em sessão já aberta.
+- Implementar rate limiting nas rotas sensíveis, se necessário.
+- Revisar upload de arquivos por tipo, tamanho e nome.
+- Verificar logs e tratamento de erros em produção.
+- Criar rotina de backup do banco e do Storage.
+
+RECURSOS AINDA NÃO INCLUÍDOS OU NÃO FINALIZADOS
+- E-mails automáticos de pedido, pagamento, chat e entrega.
+- Recuperação de senha por e-mail, caso seja desejada além de OAuth.
+- Termos de uso, política de privacidade, política de reembolso e aviso de cookies completos.
+- Domínio próprio e configuração DNS.
+- Monitoramento de disponibilidade e erros.
+- Painel financeiro completo e relatórios avançados.
+- Integração automática de estoque com qualquer sistema externo.
+
+============================================================
+3. COMO INSTALAR / ATUALIZAR
+============================================================
+
+1. Fazer backup do projeto atual no Replit.
+2. Substituir os arquivos pelos deste pacote.
+3. Manter as Secrets existentes:
+   - SUPABASE_URL
+   - SUPABASE_PUBLISHABLE_KEY
+4. Não adicionar service_role ou Secret Key no frontend.
+5. Abrir Supabase > SQL Editor > New query.
+6. Executar todo o arquivo supabase/migration_v2.sql.
+7. Confirmar Success.
+8. No Replit, executar:
+   npm install
+   npm run check
+   npm start
+9. Testar no Preview.
+10. Confirmar profiles.role = owner para a conta correta.
+11. Testar login Google e Discord.
+12. Testar catálogo, carrinho, Pix, pedidos, chat, equipe e avaliações.
+13. Somente depois clicar em Republish.
+
+============================================================
+4. TESTE MÍNIMO DE ACEITAÇÃO
+============================================================
+
+- Visitante abre catálogo e filtra categorias.
+- Cliente entra com Google.
+- Cliente entra com Discord.
+- Cliente adiciona produto ao carrinho.
+- Produto fora de estoque não entra no carrinho.
+- Cliente cria pedido Pix e envia comprovante.
+- Owner/admin vê o pedido e aprova.
+- Chat é liberado.
+- Delivery staff assume o atendimento.
+- Cliente e equipe trocam mensagens.
+- Funcionário marca como entregue.
+- Cliente publica avaliação.
+- Avaliação aparece publicamente.
+- Owner responde ou modera avaliação.
+- Cliente comum não abre painel.
+- Delivery staff não altera preços/cargos.
+- Admin não remove ou rebaixa o owner.
+- Um cliente não acessa pedido ou chat de outro cliente.
+
+============================================================
+5. ARQUIVOS PRINCIPAIS
+============================================================
+
+- index.html: estrutura da interface.
+- styles.css: visual e responsividade.
+- app.js: catálogo, autenticação, carrinho, pedidos, chat, painéis e avaliações.
+- server.js: servidor Express e configuração pública do Supabase.
+- config.js: dados públicos da loja e Pix.
+- supabase/migration_v2.sql: estrutura e segurança do banco.
+- INSTALACAO-PASSO-A-PASSO.txt: instruções resumidas.
+- README.md: visão geral do projeto.
+
+FIM DO DOCUMENTO

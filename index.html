@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#09050f" />
+  <meta name="description" content="Shadowblox - Itens de Sailor Piece com compra segura, Pix e suporte exclusivo." />
+  <title>Shadowblox | Sailor Piece Items</title>
+  <link rel="icon" href="assets/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oxanium:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/config-runtime.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="ambient"></div>
+
+  <header class="site-header">
+    <button class="mobile-menu-button" data-action="toggle-mobile-nav" aria-label="Abrir menu">☰</button>
+    <a class="brand" href="#home" data-route="home" aria-label="Shadowblox - início">
+      <img src="assets/logo.png" alt="Shadowblox" />
+      <span>SHADOWBLOX</span>
+    </a>
+    <nav class="desktop-nav" aria-label="Navegação principal">
+      <a href="#home" data-route="home">Início</a>
+      <a href="#catalog" data-route="catalog">Catálogo</a>
+      <a href="#reviews" data-route="reviews">Avaliações</a>
+      <button class="nav-link" data-action="open-orders">Meus pedidos</button>
+    </nav>
+    <div class="header-actions">
+  <button class="icon-button" data-action="focus-search" aria-label="Pesquisar">⌕</button>
+  <button id="staff-panel-top-link" class="account-button hidden" data-action="open-dashboard">Painel</button>
+  <button class="account-button" data-action="open-login"><span>Entrar</span></button>
+  <button class="cart-button" data-action="open-cart">🛒 <span id="cart-count">0</span></button>
+</div>
+  </header>
+
+  <aside id="mobile-nav" class="mobile-nav hidden" aria-label="Menu móvel">
+    <a href="#home" data-route="home">Início</a>
+    <a href="#catalog" data-route="catalog">Catálogo</a>
+    <a href="#reviews" data-route="reviews">Avaliações</a>
+    <button data-action="open-orders">Meus pedidos</button>
+  </aside>
+
+  <main>
+    <div id="home-view" class="view">
+      <section class="hero section-shell">
+        <img class="hero-art" src="assets/hero.jpg" alt="Personagens em uma batalha épica com a marca Shadowblox" />
+        <div class="hero-overlay"></div>
+        <div class="hero-copy">
+          <span class="eyebrow">Sailor Piece • Entrega assistida</span>
+          <h1>Seu poder começa na <em>Shadowblox</em></h1>
+          <p>Encontre sets, rerolls, gamepasses e combos. Finalize pelo Pix ou cartão e receba atendimento no chat exclusivo do pedido.</p>
+          <div class="hero-cta">
+            <button class="secondary-button" data-action="open-login">Criar conta</button>
+          </div>
+          <div class="trust-row">
+            <span>🛡️ Compra segura</span><span>⚡ Entrega rápida</span><span>🎧 Suporte ativo</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="sailor-feature section-shell">
+        <img src="assets/sailor-banner.jpg" alt="Duelo de personagens em estilo Roblox" />
+        <div class="sailor-feature-copy">
+          <span class="eyebrow">Categoria principal</span>
+          <h2>Sailor Piece</h2>
+          <p>Personagens, estilos de luta, rerolls, gamepasses e itens especiais.</p>
+          <a class="primary-button" href="#catalog" data-route="catalog">Ver catálogo</a>
+        </div>
+      </section>
+
+      <section class="section-shell section-block">
+        <div class="section-heading products-heading">
+          <div><span class="eyebrow">Catálogo</span><h2>Ofertas em destaque</h2></div>
+          <a class="text-link" href="#catalog" data-route="catalog">Ver todos →</a>
+        </div>
+        <div id="featured-grid" class="product-grid"></div>
+      </section>
+
+      <section id="reviews-home" class="section-shell section-block">
+        <div class="section-heading">
+          <div><span class="eyebrow">Compra verificada</span><h2>Avaliações dos clientes</h2></div>
+          <a class="text-link" href="#reviews" data-route="reviews">Ver avaliações →</a>
+        </div>
+        <div id="reviews-summary-home" class="review-summary"></div>
+        <div id="reviews-preview" class="reviews-grid"></div>
+      </section>
+
+      <section class="how-it-works section-shell section-block">
+        <div class="section-heading"><div><span class="eyebrow">Simples e rápido</span><h2>Como comprar</h2></div></div>
+        <div class="steps-grid">
+          <article><b>1</b><h3>Escolha os itens</h3><p>Adicione seus produtos ao carrinho.</p></article>
+          <article><b>2</b><h3>Entre na conta</h3><p>Use Google ou Discord para identificar seu pedido.</p></article>
+          <article><b>3</b><h3>Faça o pagamento</h3><p>Pague por Pix, crédito ou débito.</p></article>
+          <article><b>4</b><h3>Fale no chat</h3><p>Após a aprovação, envie uma mensagem para receber o item.</p></article>
+        </div>
+      </section>
+    </div>
+
+    <div id="catalog-view" class="view hidden">
+      <section class="catalog-hero section-shell">
+        <img src="assets/sailor-banner.jpg" alt="Sailor Piece" />
+        <div class="catalog-hero-overlay"></div>
+        <div class="catalog-hero-copy">
+          <span class="eyebrow">Sailor Piece</span>
+          <h1>Catálogo completo</h1>
+          <p>Escolha uma categoria e encontre o item ideal.</p>
+        </div>
+      </section>
+
+      <section class="catalog-layout section-shell section-block">
+        <aside class="catalog-sidebar">
+          <div class="sidebar-title-row">
+            <div><strong>Categorias</strong><small>Encontre sua categoria favorita</small></div>
+            <button class="sidebar-close" data-action="toggle-catalog-sidebar" aria-label="Fechar categorias">×</button>
+          </div>
+          <label class="sidebar-search"><span>⌕</span><input id="sidebar-search" type="search" placeholder="Pesquisar" /></label>
+          <div class="sidebar-group">
+            <button class="sidebar-parent open" data-action="toggle-sailor-menu"><span>Sailor Piece</span><span class="chevron">⌃</span></button>
+            <div id="sailor-submenu" class="sidebar-submenu"></div>
+          </div>
+        </aside>
+
+        <div class="catalog-main">
+          <div class="catalog-toolbar">
+            <div>
+              <button class="mobile-categories-button" data-action="toggle-catalog-sidebar">☰ Categorias</button>
+              <div id="breadcrumb" class="breadcrumb">Início › Categorias › Novo</div>
+              <h2 id="catalog-title">Novo</h2>
+            </div>
+            <div class="filters">
+              <label class="search-field"><span>⌕</span><input id="product-search" type="search" placeholder="Pesquisar produto" /></label>
+              <select id="sort-filter" aria-label="Ordenar produtos">
+                <option value="featured">Destaques</option>
+                <option value="low">Menor preço</option>
+                <option value="high">Maior preço</option>
+                <option value="name">Nome</option>
+              </select>
+            </div>
+          </div>
+          <div id="product-grid" class="product-grid"></div>
+          <div id="empty-products" class="empty-state hidden">Nenhum produto encontrado.</div>
+        </div>
+      </section>
+    </div>
+
+    <div id="reviews-view" class="view hidden">
+      <section class="section-shell section-block reviews-page">
+        <div class="section-heading">
+          <div><span class="eyebrow">Opiniões reais</span><h1>Avaliações dos clientes</h1></div>
+          <button class="primary-button" data-action="open-review-form">Avaliar a loja</button>
+        </div>
+        <div id="reviews-summary" class="review-summary"></div>
+        <div class="reviews-toolbar">
+          <select id="reviews-sort" aria-label="Ordenar avaliações">
+            <option value="newest">Mais recentes</option>
+            <option value="best">Melhores notas</option>
+            <option value="worst">Piores notas</option>
+          </select>
+        </div>
+        <div id="reviews-list" class="reviews-grid reviews-grid-full"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-grid section-shell">
+      <div class="footer-brand"><img src="assets/logo.png" alt="" /><div><strong>SHADOWBLOX</strong><p>Sailor Piece Items</p></div></div>
+      <div><h4>Loja</h4><a href="#catalog" data-route="catalog">Catálogo</a><a href="#reviews" data-route="reviews">Avaliações</a><button data-action="open-orders">Meus pedidos</button></div>
+      <div><h4>Atendimento</h4><p>Chat exclusivo liberado após pagamento aprovado.</p><button id="staff-panel-link" class="text-button hidden" data-action="open-dashboard">Painel da equipe</button></div>
+      <div><h4>Aviso</h4><p>Revise as regras do Roblox e do jogo antes de publicar ou comercializar itens.</p></div>
+    </div>
+    <div class="footer-bottom">© <span id="year"></span> Shadowblox. Todos os direitos reservados.</div>
+  </footer>
+
+  <dialog id="cart-dialog" class="drawer-dialog">
+    <div class="dialog-head"><div><span class="eyebrow">Seu pedido</span><h2>Carrinho</h2></div><button data-action="close-dialog" aria-label="Fechar">×</button></div>
+    <div id="cart-items" class="cart-items"></div>
+    <div class="cart-summary"><div><span>Total</span><strong id="cart-total">R$ 0,00</strong></div><button class="primary-button full" data-action="start-checkout">Finalizar compra</button></div>
+  </dialog>
+
+  <dialog id="login-dialog" class="modal-dialog small-dialog">
+    <div class="dialog-head"><div><span class="eyebrow">Sua conta</span><h2>Entrar ou criar conta</h2></div><button data-action="close-dialog" aria-label="Fechar">×</button></div>
+    <p class="muted">Escolha uma conta para continuar. Você será identificado no pedido e no chat de entrega.</p>
+    <button class="oauth-button google" data-provider="google"><span>G</span> Continuar com Google</button>
+    <button class="oauth-button discord" data-provider="discord"><span>◉</span> Continuar com Discord</button>
+    <button id="logout-button" class="secondary-button full hidden" data-action="logout">Sair da conta</button>
+    <div id="login-mode-note" class="info-box"></div>
+  </dialog>
+
+  <dialog id="checkout-dialog" class="modal-dialog checkout-dialog">
+    <div class="dialog-head"><div><span class="eyebrow">Última etapa</span><h2>Finalizar compra</h2></div><button data-action="close-dialog" aria-label="Fechar">×</button></div>
+    <div id="checkout-login-gate" class="checkout-gate hidden">
+      <div class="gate-icon">🔒</div><h3>Entre para finalizar a compra</h3><p>Crie uma conta ou faça login com Google ou Discord.</p><button class="primary-button" data-action="open-login">Entrar agora</button>
+    </div>
+    <div id="checkout-content">
+      <div class="checkout-columns">
+        <div>
+          <h3>Forma de pagamento</h3>
+
+<div id="payment-card" class="payment-panel">
+  <div class="card-message">
+    <span>💠</span>
+    <div>
+      <h4>Pix Mercado Pago</h4>
+      <p>O Pix será gerado automaticamente pelo Mercado Pago com QR Code e copia e cola.</p>
+    </div>
+  </div>
+
+  <button class="primary-button full" data-action="pay-card">
+    Gerar Pix Mercado Pago
+  </button>
+</div>
+        </div>
+        <aside class="checkout-summary"><h3>Resumo</h3><div id="checkout-items"></div><div class="total-line"><span>Total</span><strong id="checkout-total">R$ 0,00</strong></div></aside>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="orders-dialog" class="modal-dialog wide-dialog">
+    <div class="dialog-head"><div><span class="eyebrow">Sua conta</span><h2>Meus pedidos</h2></div><button data-action="close-dialog" aria-label="Fechar">×</button></div>
+    <div id="orders-login-gate" class="checkout-gate hidden"><div class="gate-icon">🔒</div><h3>Entre para visualizar seus pedidos</h3><button class="primary-button" data-action="open-login">Entrar agora</button></div>
+    <div id="orders-list" class="orders-list"></div>
+  </dialog>
+
+  <dialog id="chat-dialog" class="modal-dialog chat-dialog">
+    <div class="dialog-head"><div><span class="eyebrow">Entrega do pedido</span><h2 id="chat-title">Chat</h2></div><button data-action="close-chat" aria-label="Fechar">×</button></div>
+    <div class="chat-notice">Pagamento aprovado! Mande uma mensagem para receber o item.</div>
+    <div id="chat-messages" class="chat-messages"></div>
+    <form id="chat-form" class="chat-form"><input id="chat-input" maxlength="500" placeholder="Digite sua mensagem" /><button class="primary-button" type="submit">Enviar</button></form>
+  </dialog>
+
+  <dialog id="review-dialog" class="modal-dialog small-dialog">
+    <div class="dialog-head"><div><span class="eyebrow">Compra verificada</span><h2>Avaliar a loja</h2></div><button data-action="close-dialog" aria-label="Fechar">×</button></div>
+    <div id="review-gate" class="info-box"></div>
+    <form id="review-form" class="review-form hidden">
+      <label>Pedido entregue<select id="review-order"></select></label>
+      <fieldset class="stars-input" aria-label="Nota"><legend>Sua nota</legend><div id="star-picker"></div></fieldset>
+      <label>Comentário<textarea id="review-comment" maxlength="800" required placeholder="Conte como foi sua experiência"></textarea></label>
+      <button class="primary-button full" type="submit">Publicar avaliação</button>
+    </form>
+  </dialog>
+
+  <dialog id="dashboard-dialog" class="modal-dialog dashboard-dialog">
+    <div class="dialog-head"><div><span class="eyebrow">Gestão Shadowblox</span><h2>Painel da equipe</h2></div><button data-action="close-dialog" aria-label="Fechar">×</button></div>
+    <div class="dashboard-shell">
+      <nav id="dashboard-tabs" class="dashboard-tabs"></nav>
+      <section id="dashboard-content" class="dashboard-content"></section>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status"></div>
+</body>
+</html>

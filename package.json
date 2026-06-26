@@ -1,0 +1,13 @@
+{
+  "name": "shadowblox",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Loja Shadowblox com catálogo, Supabase, equipe, chat e avaliações.",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check app.js"
+  },
+  "dependencies": {
+    "express": "4.21.2"
+  }
+}

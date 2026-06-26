@@ -1,0 +1,11 @@
+Olá! Estou enviando o projeto atualizado da loja Shadowblox.
+
+Leia primeiro os arquivos:
+1. STATUS-DO-PROJETO-E-PENDENCIAS.txt
+2. README.md
+3. INSTALACAO-PASSO-A-PASSO.txt
+4. supabase/migration_v2.sql
+
+Preciso que você revise o código, instale a migration com segurança, teste as políticas RLS e conclua o que estiver listado como pendente. A prioridade é validar catálogo, login Google/Discord, cargos, Pix manual, pedidos, chat, entrega e avaliações antes de ativar pagamentos por cartão.
+
+Não coloque SUPABASE_SECRET_KEY, service_role, Client Secrets ou token do Mercado Pago no frontend, no GitHub ou em arquivos públicos. Confirme comigo o e-mail correto do owner antes de publicar.
