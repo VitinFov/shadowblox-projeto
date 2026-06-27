@@ -18,6 +18,23 @@ const mercadoPagoAccessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN || '';
 const mercadoPagoWebhookSecret = process.env.MERCADO_PAGO_WEBHOOK_SECRET || '';
 const publicSiteUrl = process.env.PUBLIC_SITE_URL || '';
 
+const REQUIRED_ENV = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'];
+const OPTIONAL_ENV = ['MERCADO_PAGO_ACCESS_TOKEN', 'MERCADO_PAGO_WEBHOOK_SECRET', 'PUBLIC_SITE_URL', 'SUPABASE_PUBLISHABLE_KEY', 'PIX_COPY_PASTE_CODE'];
+
+const missingRequired = REQUIRED_ENV.filter((key) => !process.env[key]);
+if (missingRequired.length > 0) {
+  console.error('[STARTUP ERROR] Missing required environment variables:');
+  missingRequired.forEach((key) => console.error(`  - ${key}`));
+  console.error('The server cannot start without these. Set them in your environment secrets.');
+  process.exit(1);
+}
+
+const missingOptional = OPTIONAL_ENV.filter((key) => !process.env[key]);
+if (missingOptional.length > 0) {
+  console.warn('[STARTUP WARN] Missing optional environment variables (some features may be disabled):');
+  missingOptional.forEach((key) => console.warn(`  - ${key}`));
+}
+
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
   auth: {
     persistSession: false,
@@ -217,11 +234,303 @@ app.get('/health', (_req, res) => {
   });
 });
 
+app.get('/api/admin/status', (req, res) => {
+  const adminToken = process.env.ADMIN_STATUS_TOKEN;
+  if (adminToken) {
+    const provided = (req.headers['x-admin-token'] || '').trim();
+    if (!provided || provided !== adminToken) {
+      return res.status(401).json({ ok: false, error: 'Unauthorized' });
+    }
+  }
+
+  const allVars = [...REQUIRED_ENV, ...OPTIONAL_ENV];
+  const status = {};
+  allVars.forEach((key) => {
+    status[key] = process.env[key] ? 'configured' : 'missing';
+  });
+  res.json({
+    ok: true,
+    environment: process.env.NODE_ENV || 'development',
+    vars: status
+  });
+});
+
+async function cancelOrder(orderId) {
+  const { data: order, error: orderError } = await supabaseAdmin
+    .from('orders')
+    .select('id,status,stock_deducted')
+    .eq('id', orderId)
+    .single();
+
+  if (orderError || !order) {
+    throw new Error('Pedido não encontrado');
+  }
+
+  if (order.status === 'cancelled') {
+    throw new Error('Pedido já está cancelado');
+  }
+
+  if (order.stock_deducted) {
+    const { data: items, error: itemsError } = await supabaseAdmin
+      .from('order_items')
+      .select('product_id,quantity')
+      .eq('order_id', orderId);
+
+    if (itemsError) {
+      throw new Error('Erro ao buscar itens do pedido');
+    }
+
+    for (const item of items || []) {
+      if (!item.product_id) continue;
+
+      const { data: product, error: productError } = await supabaseAdmin
+        .from('products')
+        .select('id,stock')
+        .eq('id', item.product_id)
+        .single();
+
+      if (productError || !product) continue;
+
+      const restoredStock = product.stock + item.quantity;
+
+      await supabaseAdmin
+        .from('products')
+        .update({
+          stock: restoredStock,
+          out_of_stock: restoredStock <= 0,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', product.id);
+    }
+  }
+
+  const { error: updateError } = await supabaseAdmin
+    .from('orders')
+    .update({
+      status: 'cancelled',
+      stock_deducted: false,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', orderId);
+
+  if (updateError) {
+    throw new Error('Erro ao cancelar pedido');
+  }
+}
+
+app.post('/api/admin/send-chat', async (req, res) => {
+  const adminToken = process.env.ADMIN_STATUS_TOKEN;
+  if (adminToken) {
+    const provided = (req.headers['x-admin-token'] || '').trim();
+    if (!provided || provided !== adminToken) {
+      return res.status(401).json({ ok: false, error: 'Unauthorized' });
+    }
+  }
+
+  const { orderId, message, senderId } = req.body || {};
+
+  if (!orderId || !isValidUuid(orderId)) {
+    return res.status(400).json({ ok: false, error: 'orderId inválido' });
+  }
+
+  if (!message || typeof message !== 'string' || !message.trim()) {
+    return res.status(400).json({ ok: false, error: 'message não pode estar vazia' });
+  }
+
+  if (senderId && !isValidUuid(senderId)) {
+    return res.status(400).json({ ok: false, error: 'senderId inválido' });
+  }
+
+  try {
+    const { data: order, error: orderError } = await supabaseAdmin
+      .from('orders')
+      .select('id,user_id')
+      .eq('id', orderId)
+      .single();
+
+    if (orderError || !order) {
+      return res.status(404).json({ ok: false, error: 'Pedido não encontrado' });
+    }
+
+    const resolvedSenderId = senderId || order.user_id;
+
+    const { data: chatMessage, error: insertError } = await supabaseAdmin
+      .from('chat_messages')
+      .insert({
+        order_id: orderId,
+        sender_id: resolvedSenderId,
+        message: message.trim()
+      })
+      .select('id,sender_id,message,created_at')
+      .single();
+
+    if (insertError) {
+      throw new Error('Erro ao inserir mensagem no chat');
+    }
+
+    return res.json({ ok: true, chatMessage });
+  } catch (error) {
+    console.error('Erro em /api/admin/send-chat:', error);
+    return res.status(500).json({ ok: false, error: error.message || 'Erro interno ao enviar mensagem' });
+  }
+});
+
+app.get('/api/admin/order-detail', async (req, res) => {
+  const adminToken = process.env.ADMIN_STATUS_TOKEN;
+  if (adminToken) {
+    const provided = (req.headers['x-admin-token'] || '').trim();
+    if (!provided || provided !== adminToken) {
+      return res.status(401).json({ ok: false, error: 'Unauthorized' });
+    }
+  }
+
+  const { orderId } = req.query;
+
+  if (!orderId || !isValidUuid(orderId)) {
+    return res.status(400).json({ ok: false, error: 'orderId inválido' });
+  }
+
+  try {
+    const [orderResult, itemsResult, chatResult] = await Promise.all([
+      supabaseAdmin
+        .from('orders')
+        .select('id,status,total_cents,stock_deducted,customer_name,customer_email,payment_method,user_id,created_at,updated_at')
+        .eq('id', orderId)
+        .single(),
+      supabaseAdmin
+        .from('order_items')
+        .select('id,product_id,product_name,quantity,unit_price_cents')
+        .eq('order_id', orderId),
+      supabaseAdmin
+        .from('chat_messages')
+        .select('id,sender_id,message,created_at')
+        .eq('order_id', orderId)
+        .order('created_at', { ascending: true })
+    ]);
+
+    if (orderResult.error || !orderResult.data) {
+      return res.status(404).json({ ok: false, error: 'Pedido não encontrado' });
+    }
+
+    return res.json({
+      ok: true,
+      order: orderResult.data,
+      items: itemsResult.data || [],
+      chat: chatResult.data || []
+    });
+  } catch (error) {
+    console.error('Erro em /api/admin/order-detail:', error);
+    return res.status(500).json({ ok: false, error: error.message || 'Erro interno ao buscar pedido' });
+  }
+});
+
+app.get('/api/admin/list-orders', async (req, res) => {
+  const adminToken = process.env.ADMIN_STATUS_TOKEN;
+  if (adminToken) {
+    const provided = (req.headers['x-admin-token'] || '').trim();
+    if (!provided || provided !== adminToken) {
+      return res.status(401).json({ ok: false, error: 'Unauthorized' });
+    }
+  }
+
+  const VALID_STATUSES = ['awaiting_payment', 'under_review', 'paid', 'cancelled', 'rejected'];
+  const { status, limit = '50', offset = '0' } = req.query;
+
+  if (status && !VALID_STATUSES.includes(status)) {
+    return res.status(400).json({
+      ok: false,
+      error: `Status inválido. Use um de: ${VALID_STATUSES.join(', ')}`
+    });
+  }
+
+  const parsedLimit = Math.min(Math.max(Number(limit) || 50, 1), 200);
+  const parsedOffset = Math.max(Number(offset) || 0, 0);
+
+  try {
+    let query = supabaseAdmin
+      .from('orders')
+      .select('id,status,total_cents,stock_deducted,customer_name,customer_email,payment_method,created_at,updated_at')
+      .order('created_at', { ascending: false })
+      .range(parsedOffset, parsedOffset + parsedLimit - 1);
+
+    if (status) {
+      query = query.eq('status', status);
+    }
+
+    const { data: orders, error } = await query;
+
+    if (error) {
+      throw new Error('Erro ao buscar pedidos');
+    }
+
+    return res.json({
+      ok: true,
+      total: orders.length,
+      limit: parsedLimit,
+      offset: parsedOffset,
+      status: status || 'all',
+      orders
+    });
+  } catch (error) {
+    console.error('Erro em /api/admin/list-orders:', error);
+    return res.status(500).json({ ok: false, error: error.message || 'Erro interno ao listar pedidos' });
+  }
+});
+
+app.post('/api/admin/cancel-order', async (req, res) => {
+  const adminToken = process.env.ADMIN_STATUS_TOKEN;
+  if (adminToken) {
+    const provided = (req.headers['x-admin-token'] || '').trim();
+    if (!provided || provided !== adminToken) {
+      return res.status(401).json({ ok: false, error: 'Unauthorized' });
+    }
+  }
+
+  const { orderId } = req.body || {};
+
+  if (!orderId || !isValidUuid(orderId)) {
+    return res.status(400).json({ ok: false, error: 'orderId inválido' });
+  }
+
+  try {
+    await cancelOrder(orderId);
+    return res.json({ ok: true, message: `Pedido ${orderId} cancelado e estoque restaurado.` });
+  } catch (error) {
+    console.error('Erro em /api/admin/cancel-order:', error);
+    return res.status(500).json({ ok: false, error: error.message || 'Erro interno ao cancelar pedido' });
+  }
+});
+
+app.post('/api/admin/approve-order', async (req, res) => {
+  const adminToken = process.env.ADMIN_STATUS_TOKEN;
+  if (adminToken) {
+    const provided = (req.headers['x-admin-token'] || '').trim();
+    if (!provided || provided !== adminToken) {
+      return res.status(401).json({ ok: false, error: 'Unauthorized' });
+    }
+  }
+
+  const { orderId } = req.body || {};
+
+  if (!orderId || !isValidUuid(orderId)) {
+    return res.status(400).json({ ok: false, error: 'orderId inválido' });
+  }
+
+  try {
+    await approveOrderFromMercadoPago(orderId);
+    return res.json({ ok: true, message: `Pedido ${orderId} aprovado manualmente.` });
+  } catch (error) {
+    console.error('Erro em /api/admin/approve-order:', error);
+    return res.status(500).json({ ok: false, error: error.message || 'Erro interno ao aprovar pedido' });
+  }
+});
+
 app.get('/config-runtime.js', (_req, res) => {
   const publicConfig = {
     supabaseUrl: process.env.SUPABASE_URL || '',
     supabasePublishableKey: process.env.SUPABASE_PUBLISHABLE_KEY || '',
-    pixCode: process.env.PIX_COPY_PASTE_CODE || ''
+    pixCode: process.env.PIX_COPY_PASTE_CODE || '',
+    siteUrl: process.env.PUBLIC_SITE_URL || ''
   };
 
   res.setHeader('Cache-Control', 'no-store');
@@ -461,6 +770,10 @@ app.use(express.static(__dirname, {
   etag: true,
   maxAge: isProduction ? '1h' : 0
 }));
+
+app.get('/admin', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'admin.html'));
+});
 
 app.get('*', (_req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));

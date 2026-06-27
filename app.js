@@ -214,9 +214,10 @@
       return;
     }
 
+    const redirectTo = runtime.siteUrl || location.origin;
     const { error } = await state.supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: location.origin }
+      options: { redirectTo }
     });
 
     if (error) toast(`Não foi possível entrar: ${error.message}`);

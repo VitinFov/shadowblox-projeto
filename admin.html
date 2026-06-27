@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shadowblox Admin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1d2e;
+      border-bottom: 1px solid #2d3148;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    header h1 { font-size: 1.2rem; font-weight: 700; color: #a78bfa; }
+    header span { font-size: 0.8rem; color: #64748b; }
+
+    .layout { display: flex; min-height: calc(100vh - 57px); }
+
+    nav {
+      width: 200px;
+      background: #1a1d2e;
+      border-right: 1px solid #2d3148;
+      padding: 1rem 0;
+      flex-shrink: 0;
+    }
+
+    nav button {
+      width: 100%;
+      text-align: left;
+      padding: 0.65rem 1.25rem;
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+    }
+
+    nav button:hover { background: #252840; color: #e2e8f0; }
+    nav button.active { background: #252840; color: #a78bfa; border-left-color: #a78bfa; }
+
+    main { flex: 1; padding: 2rem; overflow-y: auto; }
+
+    .card {
+      background: #1a1d2e;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card h2 { font-size: 1rem; font-weight: 600; color: #a78bfa; margin-bottom: 1.25rem; }
+
+    .token-bar {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      background: #1a1d2e;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .token-bar label { font-size: 0.8rem; color: #64748b; white-space: nowrap; }
+
+    input, select, textarea {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 6px;
+      color: #e2e8f0;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #a78bfa;
+    }
+
+    .token-bar input { flex: 1; font-family: monospace; }
+
+    button.btn {
+      padding: 0.5rem 1.1rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.875rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+
+    button.btn:hover { opacity: 0.85; }
+    button.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-primary { background: #7c3aed; color: #fff; }
+    .btn-success { background: #059669; color: #fff; }
+    .btn-danger  { background: #dc2626; color: #fff; }
+    .btn-neutral { background: #334155; color: #e2e8f0; }
+
+    .form-row { display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; flex: 1; min-width: 180px; }
+    .form-group label { font-size: 0.75rem; color: #64748b; }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 6px;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.8rem;
+    }
+
+    .status-item .key { color: #94a3b8; font-family: monospace; }
+    .badge {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .badge-ok  { background: #064e3b; color: #6ee7b7; }
+    .badge-missing { background: #450a0a; color: #fca5a5; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.825rem; }
+    th { text-align: left; color: #64748b; font-weight: 600; padding: 0.5rem 0.75rem; border-bottom: 1px solid #2d3148; }
+    td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #1e2235; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #1e2235; }
+
+    .status-pill {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .pill-paid       { background: #064e3b; color: #6ee7b7; }
+    .pill-awaiting_payment { background: #1e1a05; color: #fcd34d; }
+    .pill-under_review { background: #1e1305; color: #fb923c; }
+    .pill-cancelled  { background: #1c1f2e; color: #94a3b8; }
+    .pill-rejected   { background: #450a0a; color: #fca5a5; }
+
+    .action-btns { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+    .detail-section { margin-top: 1rem; }
+    .detail-section h3 { font-size: 0.85rem; color: #64748b; margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .chat-bubble {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      padding: 0.6rem 0.9rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.825rem;
+    }
+    .chat-bubble .meta { font-size: 0.7rem; color: #475569; margin-bottom: 0.2rem; }
+
+    .empty { color: #475569; font-size: 0.85rem; padding: 1rem 0; }
+
+    .result-box {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 6px;
+      padding: 1rem;
+      font-size: 0.8rem;
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 1rem;
+    }
+
+    .result-ok  { border-color: #059669; }
+    .result-err { border-color: #dc2626; }
+
+    .tabs { display: flex; gap: 0; border-bottom: 1px solid #2d3148; margin-bottom: 1.5rem; }
+    .tab {
+      padding: 0.6rem 1.1rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: #64748b;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.15s;
+    }
+    .tab:hover { color: #e2e8f0; }
+    .tab.active { color: #a78bfa; border-bottom-color: #a78bfa; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    #toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: #1a1d2e;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      z-index: 999;
+      max-width: 320px;
+    }
+    #toast.show { opacity: 1; }
+    #toast.toast-ok  { border-color: #059669; color: #6ee7b7; }
+    #toast.toast-err { border-color: #dc2626; color: #fca5a5; }
+
+    .pagination { display: flex; gap: 0.5rem; align-items: center; margin-top: 1rem; }
+    .pagination button { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+    .pagination span { font-size: 0.8rem; color: #64748b; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>⚡ Shadowblox Admin</h1>
+  <span id="env-badge"></span>
+</header>
+
+<div class="layout">
+  <nav>
+    <button class="active" onclick="showSection('status')">📊 Status</button>
+    <button onclick="showSection('orders')">📦 Pedidos</button>
+    <button onclick="showSection('order-detail')">🔍 Detalhe</button>
+    <button onclick="showSection('actions')">⚙️ Ações</button>
+    <button onclick="showSection('chat')">💬 Chat</button>
+  </nav>
+
+  <main>
+    <div class="token-bar">
+      <label>X-Admin-Token</label>
+      <input type="password" id="adminToken" placeholder="Cole seu token aqui..." />
+      <button class="btn btn-primary" onclick="loadStatus()">Conectar</button>
+    </div>
+
+    <!-- STATUS -->
+    <div id="section-status" class="section active">
+      <div class="card">
+        <h2>Estado do Ambiente</h2>
+        <div id="status-grid" class="status-grid">
+          <span class="empty">Clique em "Conectar" para carregar.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div id="section-orders" class="section">
+      <div class="card">
+        <h2>Pedidos</h2>
+        <div class="form-row" style="margin-bottom:1rem;">
+          <div class="form-group" style="max-width:200px;">
+            <label>Status</label>
+            <select id="orders-status">
+              <option value="">Todos</option>
+              <option value="awaiting_payment">Aguardando pagamento</option>
+              <option value="under_review">Em análise</option>
+              <option value="paid">Pago</option>
+              <option value="cancelled">Cancelado</option>
+              <option value="rejected">Rejeitado</option>
+            </select>
+          </div>
+          <div class="form-group" style="max-width:100px;">
+            <label>Limite</label>
+            <select id="orders-limit">
+              <option value="20">20</option>
+              <option value="50" selected>50</option>
+              <option value="100">100</option>
+              <option value="200">200</option>
+            </select>
+          </div>
+          <div style="align-self:flex-end;">
+            <button class="btn btn-primary" onclick="loadOrders(0)">Buscar</button>
+          </div>
+        </div>
+        <div id="orders-table-wrap">
+          <span class="empty">Clique em "Buscar" para carregar os pedidos.</span>
+        </div>
+        <div class="pagination" id="orders-pagination" style="display:none;">
+          <button class="btn btn-neutral" id="btn-prev" onclick="ordersPage(-1)">← Anterior</button>
+          <span id="page-info"></span>
+          <button class="btn btn-neutral" id="btn-next" onclick="ordersPage(1)">Próxima →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDER DETAIL -->
+    <div id="section-order-detail" class="section">
+      <div class="card">
+        <h2>Detalhe do Pedido</h2>
+        <div class="form-row" style="margin-bottom:1rem;">
+          <div class="form-group">
+            <label>Order ID (UUID)</label>
+            <input type="text" id="detail-order-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+          </div>
+          <div style="align-self:flex-end;">
+            <button class="btn btn-primary" onclick="loadOrderDetail()">Buscar</button>
+          </div>
+        </div>
+        <div id="order-detail-content">
+          <span class="empty">Insira um Order ID e clique em "Buscar".</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div id="section-actions" class="section">
+      <div class="card">
+        <h2>Aprovar Pedido Manualmente</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Order ID</label>
+            <input type="text" id="approve-order-id" placeholder="UUID do pedido" />
+          </div>
+          <div style="align-self:flex-end;">
+            <button class="btn btn-success" onclick="approveOrder()">✓ Aprovar</button>
+          </div>
+        </div>
+        <div id="approve-result"></div>
+      </div>
+
+      <div class="card">
+        <h2>Cancelar Pedido</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Order ID</label>
+            <input type="text" id="cancel-order-id" placeholder="UUID do pedido" />
+          </div>
+          <div style="align-self:flex-end;">
+            <button class="btn btn-danger" onclick="cancelOrder()">✕ Cancelar</button>
+          </div>
+        </div>
+        <div id="cancel-result"></div>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div id="section-chat" class="section">
+      <div class="card">
+        <h2>Enviar Mensagem no Chat</h2>
+        <div class="form-row" style="margin-bottom:0.75rem;">
+          <div class="form-group">
+            <label>Order ID</label>
+            <input type="text" id="chat-order-id" placeholder="UUID do pedido" />
+          </div>
+          <div class="form-group">
+            <label>Sender ID (opcional — deixe vazio para usar o cliente)</label>
+            <input type="text" id="chat-sender-id" placeholder="UUID do remetente" />
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label>Mensagem</label>
+          <textarea id="chat-message" rows="3" placeholder="Digite sua mensagem..."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="sendChat()">Enviar Mensagem</button>
+        <div id="chat-result"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  let currentOffset = 0;
+
+  function token() {
+    return document.getElementById('adminToken').value.trim();
+  }
+
+  function showSection(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('section-' + name).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  function showToast(msg, ok = true) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + (ok ? 'toast-ok' : 'toast-err');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.className = '', 3000);
+  }
+
+  function resultBox(el, data, ok) {
+    el.innerHTML = '';
+    const box = document.createElement('div');
+    box.className = 'result-box ' + (ok ? 'result-ok' : 'result-err');
+    box.textContent = JSON.stringify(data, null, 2);
+    el.appendChild(box);
+  }
+
+  async function apiFetch(path, opts = {}) {
+    const headers = { 'X-Admin-Token': token(), 'Content-Type': 'application/json', ...(opts.headers || {}) };
+    const res = await fetch(path, { ...opts, headers });
+    const data = await res.json();
+    return { ok: res.ok, data };
+  }
+
+  async function loadStatus() {
+    const { ok, data } = await apiFetch('/api/admin/status');
+    const grid = document.getElementById('status-grid');
+    const badge = document.getElementById('env-badge');
+
+    if (!ok) {
+      grid.innerHTML = '<span class="empty" style="color:#fca5a5">' + (data.error || 'Erro ao carregar') + '</span>';
+      showToast(data.error || 'Erro ao conectar', false);
+      return;
+    }
+
+    badge.textContent = data.environment;
+    grid.innerHTML = Object.entries(data.vars).map(([key, val]) =>
+      `<div class="status-item">
+        <span class="key">${key}</span>
+        <span class="badge ${val === 'configured' ? 'badge-ok' : 'badge-missing'}">${val}</span>
+      </div>`
+    ).join('');
+    showToast('Conectado com sucesso!');
+  }
+
+  function pillClass(status) {
+    return 'status-pill pill-' + status;
+  }
+
+  function formatCents(cents) {
+    return 'R$ ' + (cents / 100).toFixed(2).replace('.', ',');
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '-';
+    return new Date(iso).toLocaleString('pt-BR');
+  }
+
+  async function loadOrders(offset) {
+    currentOffset = offset;
+    const status = document.getElementById('orders-status').value;
+    const limit = document.getElementById('orders-limit').value;
+    const params = new URLSearchParams({ limit, offset });
+    if (status) params.set('status', status);
+
+    const { ok, data } = await apiFetch('/api/admin/list-orders?' + params);
+    const wrap = document.getElementById('orders-table-wrap');
+    const pag = document.getElementById('orders-pagination');
+
+    if (!ok) {
+      wrap.innerHTML = '<span class="empty" style="color:#fca5a5">' + (data.error || 'Erro') + '</span>';
+      pag.style.display = 'none';
+      showToast(data.error || 'Erro', false);
+      return;
+    }
+
+    if (!data.orders.length) {
+      wrap.innerHTML = '<span class="empty">Nenhum pedido encontrado.</span>';
+      pag.style.display = 'none';
+      return;
+    }
+
+    wrap.innerHTML = `<table>
+      <thead><tr>
+        <th>ID</th><th>Cliente</th><th>Status</th><th>Total</th><th>Pagamento</th><th>Criado em</th><th>Ações</th>
+      </tr></thead>
+      <tbody>
+        ${data.orders.map(o => `<tr>
+          <td style="font-family:monospace;font-size:0.75rem;">${o.id.slice(0,8)}…</td>
+          <td>${o.customer_name || '-'}<br><span style="font-size:0.75rem;color:#64748b">${o.customer_email || ''}</span></td>
+          <td><span class="${pillClass(o.status)}">${o.status}</span></td>
+          <td>${o.total_cents ? formatCents(o.total_cents) : '-'}</td>
+          <td style="font-size:0.75rem;">${o.payment_method || '-'}</td>
+          <td style="font-size:0.75rem;">${formatDate(o.created_at)}</td>
+          <td>
+            <div class="action-btns">
+              <button class="btn btn-neutral" style="font-size:0.75rem;padding:0.3rem 0.6rem;" onclick="openDetail('${o.id}')">Ver</button>
+              <button class="btn btn-success" style="font-size:0.75rem;padding:0.3rem 0.6rem;" onclick="quickApprove('${o.id}')">✓</button>
+              <button class="btn btn-danger" style="font-size:0.75rem;padding:0.3rem 0.6rem;" onclick="quickCancel('${o.id}')">✕</button>
+            </div>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+
+    const lim = Number(limit);
+    const hasPrev = offset > 0;
+    const hasNext = data.orders.length === lim;
+    pag.style.display = 'flex';
+    document.getElementById('btn-prev').disabled = !hasPrev;
+    document.getElementById('btn-next').disabled = !hasNext;
+    document.getElementById('page-info').textContent = `${offset + 1}–${offset + data.orders.length}`;
+  }
+
+  function ordersPage(dir) {
+    const limit = Number(document.getElementById('orders-limit').value);
+    loadOrders(Math.max(0, currentOffset + dir * limit));
+  }
+
+  function openDetail(id) {
+    document.getElementById('detail-order-id').value = id;
+    document.querySelectorAll('nav button')[2].click();
+    loadOrderDetail();
+  }
+
+  async function loadOrderDetail() {
+    const orderId = document.getElementById('detail-order-id').value.trim();
+    const content = document.getElementById('order-detail-content');
+    if (!orderId) { content.innerHTML = '<span class="empty">Informe um Order ID.</span>'; return; }
+
+    const { ok, data } = await apiFetch('/api/admin/order-detail?orderId=' + encodeURIComponent(orderId));
+    if (!ok) {
+      content.innerHTML = '<span class="empty" style="color:#fca5a5">' + (data.error || 'Erro') + '</span>';
+      showToast(data.error || 'Erro', false);
+      return;
+    }
+
+    const o = data.order;
+    content.innerHTML = `
+      <div class="status-grid" style="margin-bottom:1rem;">
+        <div class="status-item"><span class="key">Status</span><span class="badge badge-ok">${o.status}</span></div>
+        <div class="status-item"><span class="key">Total</span><span>${o.total_cents ? formatCents(o.total_cents) : '-'}</span></div>
+        <div class="status-item"><span class="key">Pagamento</span><span style="font-size:0.75rem">${o.payment_method || '-'}</span></div>
+        <div class="status-item"><span class="key">Estoque deduzido</span><span class="badge ${o.stock_deducted ? 'badge-ok' : 'badge-missing'}">${o.stock_deducted ? 'sim' : 'não'}</span></div>
+        <div class="status-item"><span class="key">Cliente</span><span style="font-size:0.75rem">${o.customer_name || '-'}</span></div>
+        <div class="status-item"><span class="key">E-mail</span><span style="font-size:0.75rem">${o.customer_email || '-'}</span></div>
+        <div class="status-item"><span class="key">Criado em</span><span style="font-size:0.75rem">${formatDate(o.created_at)}</span></div>
+        <div class="status-item"><span class="key">Atualizado em</span><span style="font-size:0.75rem">${formatDate(o.updated_at)}</span></div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Itens</h3>
+        ${data.items.length ? `<table>
+          <thead><tr><th>Produto</th><th>Qtd</th><th>Preço unit.</th><th>Subtotal</th></tr></thead>
+          <tbody>${data.items.map(i => `<tr>
+            <td>${i.product_name || i.product_id || '-'}</td>
+            <td>${i.quantity}</td>
+            <td>${formatCents(i.unit_price_cents)}</td>
+            <td>${formatCents(i.quantity * i.unit_price_cents)}</td>
+          </tr>`).join('')}</tbody>
+        </table>` : '<span class="empty">Sem itens.</span>'}
+      </div>
+
+      <div class="detail-section" style="margin-top:1.25rem;">
+        <h3>Chat (${data.chat.length} mensagens)</h3>
+        ${data.chat.length ? data.chat.map(m => `
+          <div class="chat-bubble">
+            <div class="meta">${formatDate(m.created_at)} · ${m.sender_id?.slice(0,8) || 'sistema'}</div>
+            <div>${m.message}</div>
+          </div>`).join('') : '<span class="empty">Nenhuma mensagem.</span>'}
+      </div>
+
+      <div style="display:flex;gap:0.5rem;margin-top:1.25rem;">
+        <button class="btn btn-success" onclick="quickApprove('${o.id}')">✓ Aprovar</button>
+        <button class="btn btn-danger" onclick="quickCancel('${o.id}')">✕ Cancelar</button>
+        <button class="btn btn-neutral" onclick="openChat('${o.id}')">💬 Enviar mensagem</button>
+      </div>`;
+  }
+
+  function openChat(id) {
+    document.getElementById('chat-order-id').value = id;
+    document.querySelectorAll('nav button')[4].click();
+  }
+
+  async function approveOrder() {
+    const orderId = document.getElementById('approve-order-id').value.trim();
+    const el = document.getElementById('approve-result');
+    if (!orderId) return;
+    const { ok, data } = await apiFetch('/api/admin/approve-order', { method: 'POST', body: JSON.stringify({ orderId }) });
+    resultBox(el, data, ok);
+    showToast(data.message || data.error, ok);
+  }
+
+  async function cancelOrder() {
+    const orderId = document.getElementById('cancel-order-id').value.trim();
+    const el = document.getElementById('cancel-result');
+    if (!orderId) return;
+    if (!confirm('Tem certeza? O estoque será restaurado.')) return;
+    const { ok, data } = await apiFetch('/api/admin/cancel-order', { method: 'POST', body: JSON.stringify({ orderId }) });
+    resultBox(el, data, ok);
+    showToast(data.message || data.error, ok);
+  }
+
+  async function quickApprove(orderId) {
+    if (!confirm('Aprovar pedido ' + orderId.slice(0,8) + '?')) return;
+    const { ok, data } = await apiFetch('/api/admin/approve-order', { method: 'POST', body: JSON.stringify({ orderId }) });
+    showToast(data.message || data.error, ok);
+    if (ok) loadOrders(currentOffset);
+  }
+
+  async function quickCancel(orderId) {
+    if (!confirm('Cancelar pedido ' + orderId.slice(0,8) + '? O estoque será restaurado.')) return;
+    const { ok, data } = await apiFetch('/api/admin/cancel-order', { method: 'POST', body: JSON.stringify({ orderId }) });
+    showToast(data.message || data.error, ok);
+    if (ok) loadOrders(currentOffset);
+  }
+
+  async function sendChat() {
+    const orderId  = document.getElementById('chat-order-id').value.trim();
+    const message  = document.getElementById('chat-message').value.trim();
+    const senderId = document.getElementById('chat-sender-id').value.trim() || undefined;
+    const el = document.getElementById('chat-result');
+    if (!orderId || !message) { showToast('Preencha Order ID e mensagem', false); return; }
+    const body = { orderId, message, ...(senderId ? { senderId } : {}) };
+    const { ok, data } = await apiFetch('/api/admin/send-chat', { method: 'POST', body: JSON.stringify(body) });
+    resultBox(el, data, ok);
+    showToast(ok ? 'Mensagem enviada!' : (data.error || 'Erro'), ok);
+    if (ok) document.getElementById('chat-message').value = '';
+  }
+</script>
+</body>
+</html>

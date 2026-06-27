@@ -8,6 +8,10 @@
     "check": "node --check server.js && node --check app.js"
   },
   "dependencies": {
-    "express": "4.21.2"
+    "@supabase/supabase-js": "2.49.4",
+    "dotenv": "16.4.5",
+    "express": "4.21.2",
+    "express-rate-limit": "7.5.0",
+    "helmet": "8.0.0"
   }
 }
