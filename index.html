@@ -4,47 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#09050f" />
-
-  <!-- SEO Primário -->
-  <title>Shadowblox | Loja de Itens Sailor Piece – Sets, Rerolls &amp; Gamepasses</title>
-  <meta name="description" content="Compre itens de Sailor Piece com segurança: Sets, Rerolls, Gamepasses, Relíquias e combos exclusivos. Pagamento via Pix Mercado Pago, entrega assistida no chat. Shadowblox." />
-  <meta name="keywords" content="shadowblox, sailor piece, itens roblox, sets roblox, rerolls roblox, gamepasses, reliquias, comprar itens roblox, sailor piece loja" />
-  <meta name="author" content="Shadowblox" />
-  <meta name="robots" content="index, follow" />
-
-  <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Shadowblox | Loja de Itens Sailor Piece" />
-  <meta property="og:description" content="Sets, Rerolls, Gamepasses e combos exclusivos de Sailor Piece. Pague via Pix e receba com suporte no chat." />
-  <meta property="og:image" content="/assets/hero.jpg" />
-  <meta property="og:locale" content="pt_BR" />
-  <meta property="og:site_name" content="Shadowblox" />
-  <link rel="stylesheet" href="styles.css">
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Shadowblox | Loja de Itens Sailor Piece" />
-  <meta name="twitter:description" content="Sets, Rerolls, Gamepasses e combos de Sailor Piece. Pix, entrega assistida e suporte ativo." />
-  <meta name="twitter:image" content="/assets/hero.jpg" />
-
-  <!-- Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Store",
-    "name": "Shadowblox",
-    "description": "Loja de itens de Sailor Piece para Roblox.",
-    "logo": "/assets/logo.png",
-    "image": "/assets/hero.jpg",
-    "priceRange": "R$8–R$50",
-    "paymentAccepted": "Pix, Cartão de crédito",
-    "currenciesAccepted": "BRL",
-    "availableLanguage": "Portuguese"
-  }
-  <\/script>
-
+  <meta name="description" content="Shadowblox - Itens de Sailor Piece com compra segura, Pix e suporte exclusivo." />
+  <title>Shadowblox | Sailor Piece Items</title>
   <link rel="icon" href="assets/logo.png" />
-  <link rel="apple-touch-icon" href="assets/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oxanium:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -55,60 +17,6 @@
   <script src="app.js" defer></script>
 </head>
 <body>
-  <!-- Skip navigation for accessibility/SEO -->
-  <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
-
-  <!-- ==========================================
-       EPIC GAMER LOADING SCREEN
-       ========================================== -->
-  <div id="shadowblox-loader" role="status" aria-label="Carregando Shadowblox">
-    <!-- Background layers -->
-    <div class="loader-ambient"></div>
-    <div class="loader-hex-grid"></div>
-
-    <!-- Lightning bolts -->
-    <div class="loader-lightning"></div>
-    <div class="loader-lightning"></div>
-    <div class="loader-lightning"></div>
-
-    <!-- Floating particles -->
-    <div class="loader-particles">
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-    </div>
-
-    <!-- Corner decorations -->
-    <div class="loader-corner tl"></div>
-    <div class="loader-corner tr"></div>
-    <div class="loader-corner bl"></div>
-    <div class="loader-corner br"></div>
-
-    <!-- Main content -->
-    <div class="loader-content">
-      <div class="loader-logo-wrap">
-        <div class="loader-ring">
-          <div class="loader-ring-inner"></div>
-        </div>
-        <img class="loader-logo-img" src="assets/logo.png" alt="Shadowblox" />
-      </div>
-
-      <div class="loader-brand">SHADOWBLOX</div>
-      <div class="loader-tagline">Sailor Piece Items • Entrega Assistida</div>
-
-      <div class="loader-bar-wrap">
-        <div class="loader-bar" id="loader-bar"></div>
-      </div>
-      <div class="loader-status" id="loader-status">Inicializando...</div>
-    </div>
-  </div>
-  <!-- END LOADING SCREEN -->
-
   <div class="ambient"></div>
 
   <header class="site-header">
@@ -138,7 +46,7 @@
     <button data-action="open-orders">Meus pedidos</button>
   </aside>
 
-  <main id="main-content">
+  <main>
     <div id="home-view" class="view">
       <section class="hero section-shell">
         <img class="hero-art" src="assets/hero.jpg" alt="Personagens em uma batalha épica com a marca Shadowblox" />
@@ -291,32 +199,6 @@
       <div class="gate-icon">🔒</div><h3>Entre para finalizar a compra</h3><p>Crie uma conta ou faça login com Google ou Discord.</p><button class="primary-button" data-action="open-login">Entrar agora</button>
     </div>
     <div id="checkout-content">
-      <!-- Trust signals -->
-      <div class="checkout-trust-bar">
-        <span>🔒 Pagamento seguro</span>
-        <span>⚡ Pix instantâneo</span>
-        <span>🎧 Suporte pós-compra</span>
-        <span>✅ Entrega garantida</span>
-      </div>
-
-      <!-- Checkout steps -->
-      <div class="checkout-steps" aria-label="Etapas do checkout">
-        <div class="checkout-step current">
-          <div class="checkout-step-num done">✓</div>
-          <span class="checkout-step-label">Carrinho</span>
-        </div>
-        <div class="checkout-step-divider"></div>
-        <div class="checkout-step current">
-          <div class="checkout-step-num active">2</div>
-          <span class="checkout-step-label">Pagamento</span>
-        </div>
-        <div class="checkout-step-divider"></div>
-        <div class="checkout-step">
-          <div class="checkout-step-num">3</div>
-          <span class="checkout-step-label">Entrega</span>
-        </div>
-      </div>
-
       <div class="checkout-columns">
         <div>
           <h3>Forma de pagamento</h3>
@@ -373,74 +255,5 @@
   </dialog>
 
   <div id="toast" class="toast" role="status"></div>
-
-  <!-- Loading Screen Controller -->
-  <script>
-  (function() {
-    var loader = document.getElementById('shadowblox-loader');
-    var bar    = document.getElementById('loader-bar');
-    var status = document.getElementById('loader-status');
-
-    var messages = [
-      'Inicializando arena...',
-      'Carregando catálogo...',
-      'Conectando servidores...',
-      'Verificando estoque...',
-      'Preparando batalha...',
-      'Pronto para jogar!'
-    ];
-
-    var progress = 0;
-    var msgIdx   = 0;
-    var startTime = Date.now();
-
-    function updateLoader(pct, msg) {
-      bar.style.width = pct + '%';
-      if (msg) status.textContent = msg;
-    }
-
-    // Animate progress
-    var steps = [
-      { pct: 15, delay: 80 },
-      { pct: 35, delay: 200 },
-      { pct: 55, delay: 180 },
-      { pct: 72, delay: 200 },
-      { pct: 88, delay: 150 },
-      { pct: 100, delay: 120 }
-    ];
-
-    var elapsed = 0;
-    steps.forEach(function(step, i) {
-      elapsed += step.delay;
-      setTimeout(function() {
-        updateLoader(step.pct, messages[i] || messages[messages.length - 1]);
-      }, elapsed);
-    });
-
-    // Hide after page ready + minimum 900ms for the animation to shine
-    function hideLoader() {
-      var minTime = 1100;
-      var waited  = Date.now() - startTime;
-      var remaining = Math.max(0, minTime - waited);
-      setTimeout(function() {
-        updateLoader(100, 'Pronto para jogar!');
-        setTimeout(function() {
-          loader.classList.add('fade-out');
-          setTimeout(function() {
-            loader.style.display = 'none';
-          }, 650);
-        }, 280);
-      }, remaining);
-    }
-
-    if (document.readyState === 'complete') {
-      hideLoader();
-    } else {
-      window.addEventListener('load', hideLoader);
-      // Safety fallback: never stay more than 4 seconds
-      setTimeout(hideLoader, 4000);
-    }
-  })();
-  </script>
 </body>
 </html>
