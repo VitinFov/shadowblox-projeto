@@ -298,20 +298,33 @@
     const available = productAvailable(product);
     const oldPrice = product.old_price_cents ? `<div class="price-old">${formatMoney(product.old_price_cents)}</div>` : '';
 
-    return `<article class="product-card" data-product-card="${escapeHtml(product.id)}">
+    const priceFormatted = formatMoney(product.price_cents);
+    const itemPropBlock = `itemprop="offers" itemscope itemtype="https://schema.org/Offer"`;
+    return `<article class="product-card" data-product-card="${escapeHtml(product.id)}"
+        itemscope itemtype="https://schema.org/Product"
+        aria-label="${escapeHtml(product.name)} - ${priceFormatted}">
+      <meta itemprop="name" content="${escapeHtml(product.name)}" />
+      <meta itemprop="category" content="${escapeHtml(categoryName(product.category_slug))}" />
       <div class="product-image">
-        <img src="${escapeHtml(product.image_path)}" alt="${escapeHtml(product.name)}" loading="lazy" />
-        <span class="badge">ENTREGA RÁPIDA</span>
+        <img src="${escapeHtml(product.image_path)}" alt="${escapeHtml(product.name)} - Sailor Piece Roblox" loading="lazy" itemprop="image" />
+        ${product.is_new ? '<span class="badge" style="background:var(--blue);color:#03111a">NOVO</span>' : '<span class="badge">ENTREGA RÁPIDA</span>'}
         ${available ? '' : '<span class="stock-badge">FORA DE ESTOQUE</span>'}
       </div>
       <div class="product-body">
         <span class="product-category">${escapeHtml(categoryName(product.category_slug))}</span>
-        <h3>${escapeHtml(product.name)}</h3>
-        <div class="price-row"><div>${oldPrice}<div class="price">${formatMoney(product.price_cents)}</div></div>${discount ? `<span class="discount">${discount}% OFF</span>` : ''}</div>
-        <div class="pix-label">À vista no PIX</div>
+        <h3 itemprop="name">${escapeHtml(product.name)}</h3>
+        <div class="price-row" ${itemPropBlock}>
+          <div>
+            ${oldPrice}
+            <div class="price" itemprop="price" content="${(product.price_cents/100).toFixed(2)}">${priceFormatted}</div>
+            <meta itemprop="priceCurrency" content="BRL" />
+          </div>
+          ${discount ? `<span class="discount">${discount}% OFF</span>` : ''}
+        </div>
+        <div class="pix-label">⚡ À vista no PIX</div>
         <div class="product-actions">
-          <button class="buy-button" data-buy="${escapeHtml(product.id)}" ${available ? '' : 'disabled'}>${available ? 'COMPRAR' : 'ESGOTADO'}</button>
-          <button class="bag-button" data-add="${escapeHtml(product.id)}" aria-label="Adicionar ao carrinho" ${available ? '' : 'disabled'}>🛍</button>
+          <button class="buy-button" data-buy="${escapeHtml(product.id)}" ${available ? '' : 'disabled'} aria-label="Comprar ${escapeHtml(product.name)}">${available ? '⚡ COMPRAR' : 'ESGOTADO'}</button>
+          <button class="bag-button" data-add="${escapeHtml(product.id)}" aria-label="Adicionar ${escapeHtml(product.name)} ao carrinho" ${available ? '' : 'disabled'}>🛍</button>
         </div>
       </div>
     </article>`;
